@@ -1,0 +1,3 @@
+[submodule "gpu-algorithms-labs"]
+	path = gpu-algorithms-labs
+	url = https://github.com/illinois-impact/gpu-algorithms-labs

@@ -2,6 +2,8 @@ import requests
 import os
 import tarfile
 import time
+import shutil
+import parse_log
 
 
 def download_and_extract(submission_prefix, netid, url):
@@ -9,12 +11,11 @@ def download_and_extract(submission_prefix, netid, url):
     import shutil
     # download
     r = requests.get(url, allow_redirects=True)
-    open('{}.{}.tar.gz'.format(submission_prefix, netid), 'wb').write(r.content)
+    open(os.path.join('out', '{}.{}.tar.gz'.format(submission_prefix, netid)), 'wb').write(r.content)
 
-    os.mkdir(netid)
     # extract to the netid folder
-    with tarfile.open('{}.{}.tar.gz'.format(submission_prefix, netid), "r:gz") as tar:
-        tar.extractall(os.path.join(submission_prefix, netid))
+    with tarfile.open(os.path.join('out', '{}.{}.tar.gz'.format(submission_prefix, netid)), "r:gz") as tar:
+        tar.extractall(os.path.join('out', submission_prefix, netid))
 
 
 def download_and_extract_all_students_submissions(submission_prefix, netids, urls):
@@ -25,6 +26,18 @@ def download_and_extract_all_students_submissions(submission_prefix, netids, url
         # extract
         # extract_student_submission(netid)
         pass
+
+
+# https://stackoverflow.com/questions/23036576/python-compare-two-files-with-different-line-endings
+def cmp_lines(path_1, path_2):
+    l1 = l2 = True
+    with open(path_1, 'r') as f1, open(path_2, 'r') as f2:
+        while l1 and l2:
+            l1 = f1.readline()
+            l2 = f2.readline()
+            if l1 != l2:
+                return False
+    return True
 
 
 def calc_hash_of_file(file_path):
@@ -64,20 +77,54 @@ def compare_hash_of_files(folder_path, referential_folder_path, filtered_filenam
         pass
 
 
+def copy_files_from_referential_to_submissions(folder_path, referential_folder_path, filtered_filenames):
+    # collect all hash values of files in directory walk of referential_folder_path, and put them in a adictionary
+    referential_hash_values = dict()
+    for root, dirs, files in os.walk(referential_folder_path):
+        for file in files:
+            if file in filtered_filenames:
+                continue
+            file_path = os.path.join(root, file)
+            # get relative file_path to referential_folder_path
+            relative_file_path = os.path.relpath(file_path, referential_folder_path)
+
+            referential_hash_values[relative_file_path] = file_path
+            pass
+        pass
+
+    # check if the hash values of files in directory walk of folder_path are the same as the ones in referential_hash_values
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file in filtered_filenames:
+                continue
+            file_path = os.path.join(root, file)
+            relative_file_path = os.path.relpath(file_path, folder_path)
+            if relative_file_path in referential_hash_values and file not in filtered_filenames:
+                # copy the file from referential_hash_values to file_path
+                shutil.copy(referential_hash_values[relative_file_path], file_path)
+                pass
+        pass
+
+
+def submit_netid_submission(netid, submission_prefix):
+    # print netid
+    print(netid)
+    # print the output of the shell command ./rai-linux-amd64
+    retvalue = os.system("rai-linux-amd64 -p {} >{} 2>&1".format(os.path.join("out", submission_prefix, netid),
+                                                                   os.path.join('out',
+                                                                                submission_prefix + "." + netid + ".log")))
+    # print error log if retvalue is not 0
+    if retvalue != 0:
+        print("submission failed log: {} {}".format(netid, retvalue))
+        pass
+
+
 # "./rai-linux-amd64 -p {}".format(os.path.join(".", submission_prefix, netid))
 def submit_all_netids_submissions(netids, submission_prefix):
     for netid in netids:
-        # print netid
-        print(netid)
-        # print the output of the shell command ./rai-linux-amd64
-        retvalue = os.system("./rai-linux-amd64 -p {} >{} 2>&1".format(os.path.join(".", submission_prefix, netid),
-                                                                       submission_prefix + "." + netid + ".log"))
-        # print error log if retvalue is not 0
-        if retvalue != 0:
-            print("submission failed log: {} {}".format(netids, retvalue))
-            pass
+        submit_netid_submission(netid, submission_prefix)
         # wait for 30 seconds
-        time.sleep(30)
+        # time.sleep(30)
 
 
 def extract_netids_urls_from_csv(filename):
@@ -87,25 +134,33 @@ def extract_netids_urls_from_csv(filename):
     with open(filename) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            netids.append(row['username'])
-            urls.append(row['projecturl'])
+            # netids.append(row['username'])
+            # urls.append(row['projecturl'])
+            netids.append(row['_id'])
+            urls.append(row['purl'])
             pass
         pass
     return netids, urls
 
 
 if __name__ == '__main__':
-
+    # TODO: sanity check: if out does not exist, then create it
+    if not os.path.exists('out'):
+        os.mkdir('out')
     print(calc_hash_of_file("main.py"))
 
     # specifications below
     submission_prefix = "scatter"
-    referential_folder_path = os.path.join("gpu-algorithm-labs", "labs", submission_prefix)
-    netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
-    filtered_filename = "template.cu"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "aggregation_query.csv"))
+    filtered_filenames = ["main.cu"]
     # specifications above
 
     download_and_extract_all_students_submissions(submission_prefix, netids, urls)
     for netid in netids:
-        compare_hash_of_files(os.path.join(submission_prefix, netid), referential_folder_path, filtered_filenames)
-    submit_all_netids_submissions(netids, submission_prefix)
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    # submit_all_netids_submissions(netids, submission_prefix)
+    submit_netid_submission("cdcai2","scatter")

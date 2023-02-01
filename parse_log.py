@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import os
 # parse the rai output log file to get the correctness
 
 
@@ -8,7 +8,7 @@
 # test cases: 1 | 1 failed
 # assertions: 2 | 1 passed | 1 failed
 
-def parse_log(filename):
+def _parse_log(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
         for line in lines:
@@ -26,9 +26,12 @@ def parse_log(filename):
                 num_failed = int(line.split("|")[2].split(":")[1])
         # print test cases, failures, assertions, passed, failed
         print("test cases: {} | {}, failures: {} | {} | {}".format(num_test_cases, num_failures, num_assertions,
-                                                                   num_passed, num_failed)
+                                                                   num_passed, num_failed))
 
+
+def parse_log(submission_prefix,netid):
+    _parse_log(os.path.join("out","{}.{}.log".format(submission_prefix, netid)))
 
 def parse_all_logs(submission_prefix, netids):
     for netid in netids:
-        parse_log("{}.{}.log".format(submission_prefix, netid))
+        parse_log(submission_prefix, netid)
