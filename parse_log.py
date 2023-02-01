@@ -35,3 +35,6 @@ def parse_log(submission_prefix,netid):
 def parse_all_logs(submission_prefix, netids):
     for netid in netids:
         parse_log(submission_prefix, netid)
+
+if __name__ == "__main__":
+    parse_log("scatter","cdcai2")

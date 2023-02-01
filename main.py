@@ -164,3 +164,4 @@ if __name__ == '__main__':
                                                    referential_folder_path, filtered_filenames)
     # submit_all_netids_submissions(netids, submission_prefix)
     submit_netid_submission("cdcai2","scatter")
+    parse_log.parse_log("scatter","cdcai2")
