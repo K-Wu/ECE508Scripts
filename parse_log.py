@@ -10,22 +10,29 @@ import os
 
 def _parse_log(filename):
     with open(filename, 'r') as f:
+        num_test_cases = -1
+        num_failures = -1
+        num_assertions = -1
+        num_passed = -1
+        num_failed = -1
+        #print(filename)
         lines = f.readlines()
         for line in lines:
             line = line.strip()
             if "All tests passed" in line:
-                print("100% correctness")
+                print(filename+" 100% correctness")
                 return
             elif line.startswith("test cases"):
                 # extract the number of test cases and failures
                 num_test_cases = int(line.split("|")[0].split(":")[1])
-                num_failures = int(line.split("|")[1].split(":")[1])
+                num_failures = int(line.split("|")[1].split()[0])
             elif line.startswith("assertions"):
                 num_assertions = int(line.split("|")[0].split(":")[1])
-                num_passed = int(line.split("|")[1].split(":")[1])
-                num_failed = int(line.split("|")[2].split(":")[1])
+                num_passed = int(line.split("|")[1].split()[0])
+                num_failed = int(line.split("|")[2].split()[0])
         # print test cases, failures, assertions, passed, failed
-        print("test cases: {} | {}, failures: {} | {} | {}".format(num_test_cases, num_failures, num_assertions,
+        
+        print(filename+" test cases: {} | {}, failures: {} | {} | {}".format(num_test_cases, num_failures, num_assertions,
                                                                    num_passed, num_failed))
 
 

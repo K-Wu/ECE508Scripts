@@ -4,6 +4,7 @@ import tarfile
 import time
 import shutil
 import parse_log
+import stat
 
 
 def download_and_extract(submission_prefix, netid, url):
@@ -95,9 +96,10 @@ def copy_files_from_referential_to_submissions(folder_path, referential_folder_p
     # check if the hash values of files in directory walk of folder_path are the same as the ones in referential_hash_values
     for root, dirs, files in os.walk(folder_path):
         for file in files:
+            file_path = os.path.join(root, file)
+            os.chmod(file_path, stat.S_IRWXU | stat.S_IRWXG |stat.S_IRWXO)
             if file in filtered_filenames:
                 continue
-            file_path = os.path.join(root, file)
             relative_file_path = os.path.relpath(file_path, folder_path)
             if relative_file_path in referential_hash_values and file not in filtered_filenames:
                 # copy the file from referential_hash_values to file_path
@@ -143,10 +145,7 @@ def extract_netids_urls_from_csv(filename):
     return netids, urls
 
 
-if __name__ == '__main__':
-    # TODO: sanity check: if out does not exist, then create it
-    if not os.path.exists('out'):
-        os.mkdir('out')
+def test():
     print(calc_hash_of_file("main.py"))
 
     # specifications below
@@ -165,3 +164,48 @@ if __name__ == '__main__':
     # submit_all_netids_submissions(netids, submission_prefix)
     submit_netid_submission("cdcai2","scatter")
     parse_log.parse_log("scatter","cdcai2")
+
+def grade_scatter():
+    # specifications below
+    submission_prefix = "scatter"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "scatter.csv"))
+    filtered_filenames = ["main.cu"]
+    # specifications above
+
+    if 0: #already done
+        download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+        for netid in netids:
+            # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+            copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                    referential_folder_path, filtered_filenames)
+        submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def grade_gather():
+    # specifications below
+    submission_prefix = "gather"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "gather.csv"))
+    filtered_filenames = ["main.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+
+if __name__ == '__main__':
+    # sanity check: if out does not exist, then create it
+    if not os.path.exists('out'):
+        os.mkdir('out')
+    print("now grading scatter")
+    grade_scatter()
+    print("now grading gather")
+    grade_gather()
