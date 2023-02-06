@@ -1,3 +1,5 @@
 sensitive_data/
 out/
 *.pyc
+corrections_out/
+*.log
