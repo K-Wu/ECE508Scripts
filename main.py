@@ -9,7 +9,6 @@ import stat
 
 def download_and_extract(submission_prefix, netid, url):
     # the url is a tar.gz file, download it, create a netid folder, and extract the tar.gz file to the netid folder
-    import shutil
     # download
     r = requests.get(url, allow_redirects=True)
     open(os.path.join('out', '{}.{}.tar.gz'.format(submission_prefix, netid)), 'wb').write(r.content)
@@ -95,6 +94,8 @@ def copy_files_from_referential_to_submissions(folder_path, referential_folder_p
 
     # check if the hash values of files in directory walk of folder_path are the same as the ones in referential_hash_values
     for root, dirs, files in os.walk(folder_path):
+        for dir in dirs:
+            os.chmod(os.path.join(root, dir), stat.S_IRWXU | stat.S_IRWXG |stat.S_IRWXO)
         for file in files:
             file_path = os.path.join(root, file)
             os.chmod(file_path, stat.S_IRWXU | stat.S_IRWXG |stat.S_IRWXO)
@@ -138,7 +139,10 @@ def extract_netids_urls_from_csv(filename):
         for row in reader:
             # netids.append(row['username'])
             # urls.append(row['projecturl'])
-            netids.append(row['_id'])
+            if '_id' in row:
+                netids.append(row['_id'])
+            else:
+                netids.append(row['\ufeff_id'])
             urls.append(row['purl'])
             pass
         pass
@@ -200,12 +204,32 @@ def grade_gather():
     submit_all_netids_submissions(netids, submission_prefix)
     parse_log.parse_all_logs(submission_prefix,netids)
 
+def grade_stencil():
+    # specifications below
+    submission_prefix = "stencil"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "stencil.csv"))
+    filtered_filenames = ["template.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def parse_stencil_logs():
+    submission_prefix = "stencil"
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "stencil.csv"))
+    parse_log.parse_all_logs(submission_prefix,netids)
 
 if __name__ == '__main__':
     # sanity check: if out does not exist, then create it
     if not os.path.exists('out'):
         os.mkdir('out')
-    print("now grading scatter")
-    grade_scatter()
-    print("now grading gather")
-    grade_gather()
+    print("now grading stencil")
+    #grade_stencil()
+    parse_stencil_logs()
