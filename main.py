@@ -221,9 +221,82 @@ def grade_stencil():
     submit_all_netids_submissions(netids, submission_prefix)
     parse_log.parse_all_logs(submission_prefix,netids)
 
+def grade_binning():
+    # specifications below
+    submission_prefix = "binning"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "binning.csv"))
+    filtered_filenames = ["main.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def grade_bfs():
+    # specifications below
+    submission_prefix = "bfs"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "bfs.csv"))
+    filtered_filenames = ["template.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def grade_triangle_counting():
+    # specifications below
+    submission_prefix = "triangle_counting"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "triangle_counting.csv"))
+    filtered_filenames = ["template.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def grade_sgemm():
+    # specifications below
+    submission_prefix = "sgemm"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", "sgemm-regtiled-coarsened")
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "sgemm.csv"))
+    filtered_filenames = ["template.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
 def parse_stencil_logs():
     submission_prefix = "stencil"
     netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "stencil.csv"))
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def parse_bfs_logs():
+    submission_prefix = "bfs"
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "bfs.csv"))
     parse_log.parse_all_logs(submission_prefix,netids)
 
 if __name__ == '__main__':
@@ -231,5 +304,5 @@ if __name__ == '__main__':
     if not os.path.exists('out'):
         os.mkdir('out')
     print("now grading stencil")
-    #grade_stencil()
-    parse_stencil_logs()
+    grade_triangle_counting()
+    #parse_bfs_logs()

@@ -18,29 +18,32 @@ def _parse_log(filename):
         num_assertions_failed = -1
         #print(filename)
         lines = f.readlines()
-        for line in lines:
-            line = line.strip()
-            if "All tests passed" in line:
-                print(filename+" 100% correctness")
-                return
-            elif line.startswith("test cases"):
-                # extract the number of test cases and failures
-                num_test_cases = int(line.split("|")[0].split(":")[1])
-                if len(line.split("|")) > 2:
-                    num_cases_passed = int(line.split("|")[1].split()[0])
-                    num_cases_failed = int(line.split("|")[2].split()[0])
-                else:
-                    num_cases_passed = 0
-                    num_cases_failed = int(line.split("|")[1].split()[0])
-            elif line.startswith("assertions"):
-                num_assertions = int(line.split("|")[0].split(":")[1])
-                if len(line.split("|")) > 2:
-                    num_assertions_passed = int(line.split("|")[1].split()[0])
-                    num_assertions_failed = int(line.split("|")[2].split()[0])
-                else:
-                    num_assertions_passed = 0
-                    num_assertions_failed = int(line.split("|")[1].split()[0])
-        # print test cases, failures, assertions, passed, failed
+        try:
+            for line in lines:
+                line = line.strip()
+                if "All tests passed" in line:
+                    print(filename+" 100% correctness")
+                    return
+                elif line.startswith("test cases"):
+                    # extract the number of test cases and failures
+                    num_test_cases = int(line.split("|")[0].split(":")[1])
+                    if len(line.split("|")) > 2:
+                        num_cases_passed = int(line.split("|")[1].split()[0])
+                        num_cases_failed = int(line.split("|")[2].split()[0])
+                    else:
+                        num_cases_passed = 0
+                        num_cases_failed = int(line.split("|")[1].split()[0])
+                elif line.startswith("assertions"):
+                    num_assertions = int(line.split("|")[0].split(":")[1])
+                    if len(line.split("|")) > 2:
+                        num_assertions_passed = int(line.split("|")[1].split()[0])
+                        num_assertions_failed = int(line.split("|")[2].split()[0])
+                    else:
+                        num_assertions_passed = 0
+                        num_assertions_failed = int(line.split("|")[1].split()[0])
+            # print test cases, failures, assertions, passed, failed
+        except Exception as e:
+            print(filename+" error parsing log file")
         
         print(filename+" test cases: {} | {} | {}, failures: {} | {} | {}".format(num_test_cases, num_cases_passed, num_cases_failed, num_assertions,
                                                                    num_assertions_passed, num_assertions_failed))
