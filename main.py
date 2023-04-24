@@ -272,6 +272,70 @@ def grade_triangle_counting():
     submit_all_netids_submissions(netids, submission_prefix)
     parse_log.parse_all_logs(submission_prefix,netids)
 
+
+def grade_parallel_merge():
+    # specifications below
+    submission_prefix = "parallel_merge"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "parallel_merge.csv"))
+    filtered_filenames = ["template.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def grade_parallel_merge_failed_due_to_dynamic_limit():
+    submission_prefix = "parallel_merge"
+
+    with open(os.path.join("sensitive_data","parallel_merge_failed_due_to_dynamic_limit.txt"), "r") as f:
+        netids = f.read().splitlines()
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def grade_tiled_conv():
+    raise ValueError("downloading tiled_conv and replacing files have already been done")
+
+    # specifications below
+    submission_prefix = "tiled_conv"
+    referential_folder_path = os.path.join("gpu-algorithms-labs", "labs", submission_prefix)
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "tiled_conv.csv"))
+    filtered_filenames = ["main.cu"]
+    # specifications above
+
+    download_and_extract_all_students_submissions(submission_prefix, netids, urls)
+    for netid in netids:
+        # compare_content_of_files(os.path.join('out',submission_prefix, netid), referential_folder_path, filtered_filenames)
+        copy_files_from_referential_to_submissions(os.path.join('out', submission_prefix, netid),
+                                                   referential_folder_path, filtered_filenames)
+    submit_all_netids_submissions(netids, submission_prefix)
+    parse_log.parse_all_logs(submission_prefix,netids)
+
+def check_tiled_conv_correctness():
+    print("Warning: no downloading and replacement in this script. doing submission and log parsing only.")
+    # specifications below
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    # specifications above
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "tiled_conv.csv"))
+    submit_all_netids_submissions(netids, "tiled_conv_correctness")
+    parse_log.parse_all_logs("tiled_conv_correctness",netids)
+
+
+def check_tiled_conv_performance():
+    print("Warning: no downloading and replacement in this script. doing submission and log parsing only.")
+    # specifications below
+    # netids, urls = extract_netids_urls_from_csv(submission_prefix + ".csv")
+    # specifications above
+    netids, urls = extract_netids_urls_from_csv(os.path.join("sensitive_data", "tiled_conv.csv"))
+    submit_all_netids_submissions(netids, "tiled_conv")
+    parse_log.parse_all_logs_looking_for_performance_number("tiled_conv",netids)
+
 def grade_sgemm():
     # specifications below
     submission_prefix = "sgemm"
@@ -303,6 +367,6 @@ if __name__ == '__main__':
     # sanity check: if out does not exist, then create it
     if not os.path.exists('out'):
         os.mkdir('out')
-    print("now grading stencil")
-    grade_triangle_counting()
+    print("now grading parallel_merge")
+    grade_parallel_merge_failed_due_to_dynamic_limit()
     #parse_bfs_logs()

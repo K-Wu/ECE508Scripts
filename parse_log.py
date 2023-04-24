@@ -8,6 +8,10 @@ import os
 # test cases: 1 | 1 failed
 # assertions: 2 | 1 passed | 1 failed
 
+                    
+
+                    
+
 def _parse_log(filename):
     with open(filename, 'r') as f:
         num_test_cases = -1
@@ -55,6 +59,21 @@ def parse_log(submission_prefix,netid):
 def parse_all_logs(submission_prefix, netids):
     for netid in netids:
         parse_log(submission_prefix, netid)
+
+def parse_all_logs_looking_for_performance_number(submission_prefix, netids):
+    for netid in netids:
+        filename=os.path.join("out","{}.{}.log".format(submission_prefix, netid))
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+            try:
+                for line in lines:
+                    line = line.strip()
+                    if "TIMER:: Performing GPU convlayer took " in line:
+                        # extract the float from the format "TIMER:: Performing GPU convlayer took {}ms"
+                        time = float(line.split(" ")[-1][:-2])
+                        print(netid+" took {}ms".format(time))
+            except Exception as e:
+                print(netid+" error parsing log file")
 
 if __name__ == "__main__":
     parse_log("scatter","kunwu2")
